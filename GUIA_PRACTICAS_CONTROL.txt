@@ -1,0 +1,86 @@
+LABORATORIO VIRTUAL DE DINÁMICA Y CONTROL DE PROCESOS
+Guía de prácticas: perturbaciones, balances y lazos cerrados
+Universidad del Cauca · Ingeniería Agroindustrial
+
+PROPÓSITO
+Realizar cuatro ensayos sobre el modelo dinámico del tanque. Seguir cómo se propagan cambios de alimentación y vapor, y observar cómo feedback PI y cascada corrigen la variable medida. La simulación es determinista; las curvas proceden del modelo físico.
+
+ANTES DE CADA ENSAYO
+1. Abre Iniciar_Laboratorio.bat desde el Explorador de Windows. Conserva abierta la ventana del servidor; visita http://localhost:8000 si el navegador no se abre automáticamente. No abras index.html con file://.
+2. Pulsa Reiniciar al comenzar un ensayo. Selecciona Velocidad 60× para acelerar el tiempo simulado. Pulsa Iniciar para que avance el reloj, se integre el modelo y se actualicen panel y gráficas; Pausar congela el estado. Los gráficos presentan una ventana móvil de 120 segundos simulados.
+3. Ajusta los deslizadores numéricos primero. En modo automático, la frecuencia o válvula queda bajo control automático y puede aparecer deshabilitada; el actuador ya no se manipula desde su deslizador.
+4. En Perturbaciones escalón, marca las variables que deseas activar, ajusta tiempo y magnitud y pulsa Aplicar perturbaciones. El tiempo se mide desde el inicio de simulación; los cambios son relativos al valor base. Casillas sin marcar no generan escalón.
+5. El panel P&ID y Variables instantáneas indica unidades. Presión de agua se presenta en bar(a), con detalle bar(g); presión de vapor en kPa abs. Los gráficos hidráulicos presentan presión manométrica bar(g). Caudal de agua en m³/h, frecuencia en Hz, válvula en %, flujo de vapor en kg/s y temperatura en °C.
+
+ENSAYO 1 — Balance dinámico de masa y respuesta de nivel
+Objetivo: confirmar el signo de la acumulación y acción correctora de control de nivel.
+
+Preparación y maniobras:
+- Pulsa Reiniciar. Deja Nivel en Manual; fija Caudal de entrada solicitado en 1.0 m³/h.
+- Pulsa Iniciar y observa entre 30 y 60 s simulados en Estado del tanque e Hidráulica. Compara caudales reales de entrada/salida y el nivel.
+- Selecciona Nivel → Automático coordinado y deja consigna en 0.75 m.
+- Expande Perturbaciones escalón; habilita Caudal alimentación, tiempo 30 s y cambio +0.4 m³/h. Pulsa Aplicar perturbaciones.
+- Inicia (o continúa) la simulación y observa por al menos 120–180 s simulados después del escalón.
+
+Respuesta esperada:
+El balance es dV/dt=(Qin−Qout)/3600 y dh/dt=(Qin−Qout)/(3600A). Si Qin>Qout, V y nivel aumentan; si Qout>Qin, disminuyen. Al subir Qin por el escalón, el nivel tiende a subir; el PI coordinado modifica las frecuencias de P-101 y P-102 para reducir el error y conducir PV hacia SP, sujeto a límites del actuador y dinámica hidráulica. No se espera un cambio instantáneo del nivel.
+
+Registrar: caudales antes/después, hora del escalón, máximo nivel, desviación respecto de SP, dirección y magnitud de las frecuencias y tiempo aproximado de recuperación. Para comprobar el signo contrario, repite desde Reiniciar con cambio de alimentación negativo o con mayor frecuencia de descarga en manual.
+
+ENSAYO 2 — Feedback de temperatura ante escalón de temperatura de entrada
+Objetivo: observar la dinámica térmica y la acción del PI sobre el vapor.
+
+Preparación y maniobras:
+- Reinicia. Configura caudal de alimentación 0.4 m³/h; P-102 entre 5 y 10 Hz; temperatura base de entrada 20 °C; válvula manual 20–30%. Mantén la presión base de vapor predeterminada (300 kPa abs) y el UA del serpentín predeterminado (0.42 kW/K). El caudal bajo evita exigir más potencia de la disponible.
+- Inicia hasta que se vea evolucionar temperatura. Selecciona consigna 72 °C y Temperatura → Feedback PI. Al activar el lazo, el agitador se detiene deliberadamente: el modo representa la temperatura aguas adelante/salida como PV, análogo a un intercambiador. No actives el agitador durante este ensayo.
+- En perturbaciones, habilita Temperatura entrada, tiempo 300 s y delta −5 °C. Pulsa Aplicar perturbaciones.
+- Observa por varios minutos simulados y, si procede, cambia a velocidad 10× para examinar con más detalle.
+
+Respuesta esperada:
+Una caída de Tin reduce el aporte de entalpía de alimentación y la salida responde con retardo debido al inventario de agua y serpentín. El feedback PI abre TV-101 para recuperar la consigna. La respuesta depende del caudal y del UA; si la válvula queda en 100% y el vapor no aporta suficiente energía, la PV no alcanzará SP. La temperatura de descarga no salta de inmediato al cambiar Tin.
+
+Registrar: Tout antes/después, SP, retardo, desviación máxima, apertura de válvula, tiempo de recuperación y si hubo saturación. El objetivo de 72 °C es una referencia académica inspirada en pasteurización, no garantiza tratamiento sanitario: faltan tiempo de retención, distribución térmica y validación microbiológica.
+
+ENSAYO 3 — Cascada PI–PI ante perturbación de presión de vapor y comparación pareada
+Objetivo: reconocer el lazo maestro de temperatura y el esclavo de caudal de vapor, y contrastar respuestas desde condiciones equivalentes.
+
+Preparación y maniobras:
+- Reinicia y repite las mismas condiciones iniciales del Ensayo 2 (caudal de agua, frecuencias, Tin, presión base y UA).
+- Habilita Presión vapor, tiempo 300 s, delta −50 kPa; aplica. Selecciona consigna 72 °C y Temperatura → Cascada PI–PI.
+- Inicia y observa Temperatura cascada: el PI maestro cambia la consigna de flujo de vapor; el PI esclavo compara consigna y flujo calculado para mover TV-101.
+- En Comparación pareada, inspecciona también Feedback y Cascada. Esa gráfica corresponde a dos réplicas del modelo con el mismo estado de partida, entradas, ajuste de lazos y calendario de perturbaciones. Reiniciar y repetir la misma prueba permite comparar otra configuración.
+
+Respuesta esperada:
+Menor presión absoluta reduce el flujo de vapor disponible y el calor transferido; la temperatura de salida cae o se recupera más lentamente. La cascada puede responder primero desde la medición de flujo de vapor por medio del esclavo y el maestro corrige la temperatura a un ritmo más lento. La comparación es la respuesta calculada de dos instancias del modelo, no una prueba de superioridad universal: el resultado depende de ganancias, parámetros y perturbación. Si se alcanza límite de válvula, la recuperación puede quedar incompleta.
+
+Registrar: presión y flujo de vapor antes/después, cambios en SP/PV del maestro y esclavo, apertura de TV-101, desviación de Tout y recuperación de ambas ramas.
+
+ENSAYO 4 — Perturbaciones combinadas: propagación entre masa y energía
+Objetivo: separar temporalmente efectos hidráulicos y térmicos, y documentar interacción de lazos.
+
+Preparación y maniobras:
+- Reinicia. Configura caudal base de alimentación 0.4 m³/h y P-102 entre 5 y 10 Hz. Fija nivel SP en 0.75 m y selecciona Nivel → Automático coordinado.
+- Fija temperatura SP en 72 °C y elige Feedback PI o Cascada PI–PI. La selección detiene M-101 para que PV sea temperatura de salida.
+- Habilita los tres escalones y pulsa Aplicar perturbaciones: Caudal de alimentación a 60 s, +0.2 m³/h; Temperatura entrada a 180 s, −5 °C; Presión vapor a 300 s, −50 kPa. Luego inicia.
+- Deja avanzar al menos 120 s simulados después del último cambio. Sigue Estado, Hidráulica, Frecuencias, Feedback/Cascada y Comparación pareada.
+
+Respuesta esperada y cadena causal:
+1) El escalón de caudal modifica Qin y, por dV/dt, la acumulación y el nivel; el PI de nivel cambia frecuencias de las bombas para corregir PV.
+2) El escalón de Tin modifica el término de entalpía de entrada y afecta temperatura del inventario/salida; el lazo térmico compensa con TV-101.
+3) La caída de presión de vapor reduce el flujo/energía transferida; el lazo térmico reacciona de nuevo. La interacción entre inventario, salida y capacidad calorífica produce retardos; los controladores no eliminan instantáneamente perturbaciones.
+
+Registrar por escalón: tiempo simulado, valor inicial y final, sentido de respuesta, desviación/overshoot, frecuencia o apertura actuada, límites alcanzados, retardo y recuperación. Repite una vez en Feedback y otra en Cascada desde Reiniciar y con condiciones idénticas si deseas comparar estrategias sin cambiar la perturbación.
+
+CÓMO INTERPRETAR Y DOCUMENTAR
+- Balance de masa transitorio: dM/dt=ṁin−ṁout; con densidad constante, dV/dt=(Qin−Qout)/3600. El término de acumulación no se elimina durante los transitorios. A nivel constante, en cambio, Qin≈Qout.
+- Tanque agitado: la temperatura del líquido se mezcla y la descarga idealmente iguala la del tanque (Tout=T). En feedback/cascada de temperatura, el agitador se detiene y la PV es Tout del modo intercambiador. La agitación mejora mezcla, no produce calor; si el agua sale más caliente que entra se explica por energía almacenada/suministrada, no por el agitador como fuente térmica.
+- Energía: el modelo incorpora acumulación térmica, entalpía de entrada/salida, transferencia desde vapor y pérdida ambiental; con agitador activo, la salida tiene temperatura de tanque. Sin agitación, representa además el inventario dinámico simplificado del serpentín.
+- Las lecturas y gráficos pueden usar escalas normalizadas compartidas; usa el panel instantáneo para valores exactos con unidades y las curvas para comparar tendencias en el tiempo.
+- Un lazo cerrado solo mantiene o recupera su consigna si existe autoridad suficiente del actuador. Saturación, ganancias, tiempo observado y parámetros físicos determinan desempeño. No confundir estabilización simulada con validación de equipo real.
+
+REPORTE SUGERIDO DEL ESTUDIANTE
+1. Objetivo y configuración: consignas, modos, ganancias modificadas, parámetros y condiciones iniciales.
+2. Perturbación: variable, instante de simulación, amplitud y valor base.
+3. Evidencia: capturas de panel y gráficas antes/después; unidades y sentido de cada curva.
+4. Análisis: balance aplicable, retardo, desviación máxima, saturación, actuación y tiempo de recuperación.
+5. Comparación y conclusión: diferencias entre manual/feedback/cascada, límites observados y explicación física.

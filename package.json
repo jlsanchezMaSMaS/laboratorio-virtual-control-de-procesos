@@ -1,0 +1,9 @@
+{
+  "name": "laboratorio-virtual-dinamica-control",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/model.test.js tests/controllers.test.js tests/simulation.test.js tests/interface.test.js"
+  }
+}
